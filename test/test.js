@@ -22,8 +22,7 @@ describe('DataStore', () => {
 
             it("Should return a 'root' DataStore object when initialization finishes.", async () => {
 
-                // rootDataStore = await DataStore(server.getUri())
-                rootDataStore = await DataStore('mongodb://127.0.0.1:27017')
+                rootDataStore = await DataStore(server.getUri())
 
                 assert.ok(rootDataStore.getNamespace)
                 assert.ok(rootDataStore.getCollection)
@@ -57,8 +56,7 @@ describe('DataStore', () => {
 
         before(async () => {
             server = await MongoMemoryServer.create()
-            // rootDataStore = await DataStore(server.getUri())
-            rootDataStore = await DataStore('mongodb://127.0.0.1:27017')
+            rootDataStore = await DataStore(server.getUri())
         })
 
         describe('Root DataStore', () => {
