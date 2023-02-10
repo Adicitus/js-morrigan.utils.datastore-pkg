@@ -63,5 +63,5 @@ let childDataStore2a = await childDataStore1.getDataStore('child2a')
 ```
 
 The scopes available at the moment are:
-    - 'delegate': Allows the creation of subsequent child DataStores (see: `DataStore.SCOPE_DELEGATE`)
-    - 'collectionsOnly': Only provides access to collection methods (see: `DataStore.SCOPE_COLLECTIONSONLY`)
+- 'delegate': Allows the creation of subsequent child DataStores (see: `DataStore.SCOPE_DELEGATE`)
+- 'collectionsOnly': Only provides access to collection methods (see: `DataStore.SCOPE_COLLECTIONSONLY`)
