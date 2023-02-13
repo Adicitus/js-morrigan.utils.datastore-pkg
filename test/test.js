@@ -1,5 +1,6 @@
 const DataStore = require('../DataStore')
 const assert = require('assert')
+const { MongoClient } = require('mongodb')
 
 describe('DataStore', () => {
 
@@ -13,39 +14,78 @@ describe('DataStore', () => {
 
         describe('setup', () => {
 
-            var server = null
-            var rootDataStore = null
+            describe('Default options', () => {
 
-            before(async () => {
-                server = await MongoMemoryServer.create()
+                var server = null
+                var rootDataStore = null
+                var validationClient = null
+
+                before(async () => {
+                    server = await MongoMemoryServer.create()
+                    validationClient = new MongoClient(server.getUri())
+                    validationClient.connect()
+                })
+
+                it("Should return a 'root' DataStore object when initialization finishes.", async () => {
+
+                    rootDataStore = await DataStore(server.getUri())
+
+                    assert.ok(rootDataStore.getNamespace)
+                    assert.ok(rootDataStore.getCollection)
+                    assert.ok(rootDataStore.createCollection)
+                    assert.ok(rootDataStore.getDataStore)
+                    assert.ok(rootDataStore.discard)
+
+                    assert.equal(rootDataStore.getNamespace(), 'global')
+                })
+
+                it("Should fail to initialize if it's already been initialized", async () => {
+                    try {
+                        await DataStore(server.getUri())
+                    } catch {
+                        return
+                    }
+
+                    assert.fail("Running 'DataStore()' should have failed once the module has been initialized, but it did not.")
+                })
+
+                it(`Should use a database called '${DataStore.DEFAULT_DBNAME}'`, async () => {
+                    let collection = await rootDataStore.getCollection('validation')
+                    assert.equal(collection.s.namespace.db, DataStore.DEFAULT_DBNAME)
+                })
+
+                after(async () => {
+                    await validationClient.close()
+                    await rootDataStore.discard({dropDb: true})
+                    await server.stop()
+                })
             })
 
-            it("Should return a 'root' DataStore object when initialization finishes.", async () => {
+            describe('Custom DB name', () => {
 
-                rootDataStore = await DataStore(server.getUri())
+                const dbName = 'morrigan-datastore'
+                var server = null
+                var validationClient = null
+                var rootDataStore = null
 
-                assert.ok(rootDataStore.getNamespace)
-                assert.ok(rootDataStore.getCollection)
-                assert.ok(rootDataStore.createCollection)
-                assert.ok(rootDataStore.getDataStore)
-                assert.ok(rootDataStore.discard)
+                before(async () => {
+                    server = await MongoMemoryServer.create()
+                    validationClient = new MongoClient(server.getUri())
+                    await validationClient.connect()
+                })
 
-                assert.equal(rootDataStore.getNamespace(), 'global')
-            })
+                it(`Should accept options.dbName to allow naming of the database ('${dbName}')`, async () => {
+                    rootDataStore = await DataStore(server.getUri(), { dbName })
+                    let collection = await rootDataStore.getCollection('validation')
+                    assert.equal(collection.s.namespace.db, dbName)
 
-            it("Should fail to initialize if it's already been initialized", async () => {
-                try {
-                    await DataStore(server.getUri())
-                } catch {
-                    return
-                }
+                })
 
-                assert.fail("Running 'DataStore()' should have failed once the module has been initialized, but it did not.")
-            })
-
-            after(async () => {
-                await rootDataStore.discard({dropDb: true})
-                await server.stop()
+                after(async () => {
+                    await validationClient.close()
+                    await rootDataStore.discard({dropDb: true})
+                    await server.stop()
+                })
             })
         })
     })

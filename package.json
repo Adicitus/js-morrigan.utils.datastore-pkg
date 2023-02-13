@@ -1,6 +1,6 @@
 {
   "name": "@adicitus/morrigan.utils.datastore",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Data storage utility used to provide a connection to MongoDB and manage access MongoDB collections.",
   "main": "DataStore.js",
   "scripts": {

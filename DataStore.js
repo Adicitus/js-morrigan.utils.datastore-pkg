@@ -1,5 +1,7 @@
 const { MongoClient } = require('mongodb')
 
+const defaultDbName = 'DataStore'
+
 const moduleState = {
     initialized: false
 }
@@ -97,7 +99,8 @@ const resetModule = async (options) => {
 /**
  * Initializes the module and returns the root DataStore API object that can be used to delegate access to the DB.
  * @param {string} connectionString MongoDB connection string to use when connecting to the MongoDB server.
- * @param {object} options Reserved fo future use. Does not do anything at this point.
+ * @param {object} options Optional settigns. Currently only recognizes 'dbName':
+ *   - dbName: Name of the database to use, deafults to 'morrigan.datastore'
  * @returns Top level DataStore forthe system. This object must be captured and stored to work with the DataStore API.
  * @throws A general exception if called more than once.
  */
@@ -105,10 +108,17 @@ module.exports = async (connectionString, options) => {
     if (moduleState.initialized) {
         throw 'Initialization call rejected: morrigan.utils.datastore has already been initialized!'
     }
+
+    let dbName = defaultDbName
+    if (options !== null && typeof options === 'object') {
+        if (typeof options.dbName === 'string' && options.dbName.length >= 1) {
+            dbName = options.dbName
+        }
+    }
     
     moduleState.mongoClient = new MongoClient(connectionString)
     await moduleState.mongoClient.connect()
-    moduleState.database = await moduleState.mongoClient.db('DataStore')
+    moduleState.database = await moduleState.mongoClient.db(dbName)
     moduleState.initialized = true
 
     // console.log((await moduleState.database.collections()))
@@ -132,3 +142,7 @@ module.exports.SCOPE_DELEGATE = 'delegate'
  * Scope that only allows the creation of collections.
  */
 module.exports.SCOPE_COLLECTIONSONLY = 'collectionsOnly'
+/**
+ * Default name for the database to use.
+ */
+module.exports.DEFAULT_DBNAME = defaultDbName
