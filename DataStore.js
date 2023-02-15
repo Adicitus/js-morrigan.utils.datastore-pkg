@@ -35,12 +35,17 @@ function DataStore(namespace, options) {
      * See: https://mongodb.github.io/node-mongodb-native/5.0/classes/Db.html#collection
      * 
      * @param {string} name Name of the collection to create/retrieve
-     * @returns A collection with the given name.
+     * @returns A collection with the given name under the current namespace.
      */
-    this.getCollection = async (name) => {
+    this.getCollection = (name) => {
         let collectionName = parentNameSpace + '.' + name
-        return await moduleState.database.collection(collectionName)
+        return moduleState.database.collection(collectionName)
     }
+
+    /**
+     * Shorthand for getCollection
+     */
+    this.collection = this.getCollection
 
     /**
      * Explicitly creates a collection to the provided schema.

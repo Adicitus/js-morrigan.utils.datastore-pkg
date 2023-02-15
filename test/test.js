@@ -50,7 +50,7 @@ describe('DataStore', () => {
                 })
 
                 it(`Should use a database called '${DataStore.DEFAULT_DBNAME}'`, async () => {
-                    let collection = await rootDataStore.getCollection('validation')
+                    let collection = rootDataStore.getCollection('validation')
                     assert.equal(collection.s.namespace.db, DataStore.DEFAULT_DBNAME)
                 })
 
@@ -76,7 +76,7 @@ describe('DataStore', () => {
 
                 it(`Should accept options.dbName to allow naming of the database ('${dbName}')`, async () => {
                     rootDataStore = await DataStore(server.getUri(), { dbName })
-                    let collection = await rootDataStore.getCollection('validation')
+                    let collection = rootDataStore.getCollection('validation')
                     assert.equal(collection.s.namespace.db, dbName)
 
                 })
@@ -120,13 +120,17 @@ describe('DataStore', () => {
                 })
 
                 it('Should always return a MongoDB collection.', async () => {
-                    testCollection = await rootDataStore.getCollection(testCollectionName)
+                    testCollection = rootDataStore.getCollection(testCollectionName)
                     assert.ok(testCollection)
                     await testCollection.insertOne({ v: 'getCollection' })
                 })
 
                 it(`Should prefix the returned collection name with it's namespace ('global.${testCollectionName}').`, async () => {
                     assert.equal(testCollection.s.namespace.collection, `${rootDataStore.getNamespace()}.${testCollectionName}`)
+                })
+
+                it("Should have an alias called 'collection'", () => {
+                    assert.equal(rootDataStore.getCollection, rootDataStore.collection)
                 })
 
                 after(async () => {
@@ -192,7 +196,7 @@ describe('DataStore', () => {
                     assert.ok(store.createCollection)
                     assert.equal(store.getDataStore, undefined)
 
-                    testCollection = await store.getCollection(testCollectionName)
+                    testCollection = store.getCollection(testCollectionName)
                     await testCollection.insertOne({ v: defaultStoreName })
                     
                     assert.equal(testCollection.s.namespace.collection, `${store.getNamespace()}.${testCollectionName}`)
@@ -207,7 +211,7 @@ describe('DataStore', () => {
                     assert.ok(store.createCollection)
                     assert.ok(store.getDataStore)
                     
-                    testCollection = await store.getCollection(testCollectionName)
+                    testCollection = store.getCollection(testCollectionName)
                     await testCollection.insertOne({ v: delegateStoreName })
                     
                     assert.equal(testCollection.s.namespace.collection, `${store.getNamespace()}.${testCollectionName}`)
@@ -223,7 +227,7 @@ describe('DataStore', () => {
                     assert.ok(store.createCollection)
                     assert.equal(store.getDataStore, undefined)
                     
-                    testCollection = await store.getCollection(testCollectionName)
+                    testCollection = store.getCollection(testCollectionName)
                     await testCollection.insertOne({ v: collectionsOnlyStoreName })
                     
                     assert.equal(testCollection.s.namespace.collection, `${store.getNamespace()}.${testCollectionName}`)
@@ -266,7 +270,7 @@ describe('DataStore', () => {
                 })
 
                 it('Should always return a MongoDB collection.', async () => {
-                    testCollection = await delegateDataStore.getCollection(testCollectionName)
+                    testCollection = delegateDataStore.getCollection(testCollectionName)
                     assert.ok(testCollection)
                     await testCollection.insertOne({ v: 'getCollection' })
                 })
@@ -348,7 +352,7 @@ describe('DataStore', () => {
                 })
 
                 it('Should always return a MongoDB collection.', async () => {
-                    testCollection = await collectionsOnlyDataStore.getCollection(testCollectionName)
+                    testCollection = collectionsOnlyDataStore.getCollection(testCollectionName)
                     assert.ok(testCollection)
                     await testCollection.insertOne({ v: 'getCollection' })
                 })
