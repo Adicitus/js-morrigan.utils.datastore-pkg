@@ -92,7 +92,7 @@ function DataStore(namespace, options) {
  * @param {obejct} options Optional settings. Recognizes options.dropDb, a boolean to determine if the DataStore DB should be dropped.  
  */
 const resetModule = async (options) => {
-    if (options.dropDb === true) {
+    if (options && options.dropDb === true) {
         await moduleState.database.dropDatabase()
     }
     await moduleState.mongoClient.close()
